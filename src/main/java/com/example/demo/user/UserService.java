@@ -1,11 +1,14 @@
 package com.example.demo.user;
 
+import jakarta.persistence.Transient;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -36,5 +39,19 @@ public class UserService {
             throw new IllegalStateException("User with id of " + id + " does not exist");
         }
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void updateUser(Long id, String newName, String newEmail) {
+
+        User foundUser = userRepository.findById(id).orElseThrow(() -> new IllegalStateException("User with id of " + id + " does not exist"));
+
+        if (newName != null && !Objects.equals(newName, foundUser.getName())) {
+            foundUser.setName(newName);
+        }
+
+        if (newEmail != null && userRepository.findUserByEmail(newEmail).isEmpty() && !Objects.equals(newEmail, foundUser.getEmail())) {
+            foundUser.setEmail(newEmail);
+        }
     }
 }
